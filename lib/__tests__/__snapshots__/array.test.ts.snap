@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`an emitted array type with a tuple as base type matches the snapshot 1`] = `
+declare type testTupleArr = ([number, string])[];
+
+
+`;
+
+exports[`an emitted array type with multiple types matches the snapshot 1`] = `
+declare type testTuple = [string[], number, boolean | string];
+
+
+`;
+
+exports[`an emitted array type with one base type matches the snapshot 1`] = `
+declare type testArr = string[];
+
+
+`;

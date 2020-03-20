@@ -190,7 +190,7 @@ export interface TypeAliasDeclaration extends DeclarationBase {
 
 export interface ArrayTypeReference {
     kind: "array";
-    type: Type;
+    type: Type | Type[];
 }
 
 export interface NamedTypeReference {
@@ -443,7 +443,7 @@ export const create = {
         }
     },
 
-    array(type: Type): ArrayTypeReference {
+    array(type: Type | Type[]): ArrayTypeReference {
         return {
             kind: "array",
             type
@@ -841,7 +841,7 @@ export function emit(rootDecl: TopLevelDeclaration, { rootFlags = ContextFlags.N
                     for (const param of member.parameters) {
                         if (!first) print(', ');
                         first = false;
-			writeParameter(param);
+                        writeParameter(param);
                     }
                     print('): ');
                     writeReference(member.returnType);
@@ -874,6 +874,19 @@ export function emit(rootDecl: TopLevelDeclaration, { rootFlags = ContextFlags.N
         }
     }
 
+    function writeArrayReference(d: ArrayTypeReference ) {
+        if (Array.isArray(d.type)) {
+            print('[');
+            writeDelimited(d.type, ', ', writeReference);
+            print(']');
+        } else {
+            if (needsParens(d.type)) print('(');
+            writeReference(d.type);
+            if (needsParens(d.type)) print(')');
+            print('[]');
+        }
+    }
+
     function writeReference(d: Type) {
         if (typeof d === 'string') {
             print(d);
@@ -893,10 +906,7 @@ export function emit(rootDecl: TopLevelDeclaration, { rootFlags = ContextFlags.N
                     break;
 
                 case "array":
-                    if (needsParens(e.type)) print('(');
-                    writeReference(e.type);
-                    if (needsParens(e.type)) print(')');
-                    print('[]');
+                    writeArrayReference(e);
                     break;
 
                 case "object":
