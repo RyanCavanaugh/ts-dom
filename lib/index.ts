@@ -193,6 +193,11 @@ export interface ArrayTypeReference {
     type: Type;
 }
 
+export interface TupleTypeReference {
+    kind: "tuple";
+    types: Type[];
+}
+
 export interface NamedTypeReference {
     kind: "name";
     name: string;
@@ -265,7 +270,7 @@ export type ThisType = "this";
 
 export type TripleSlashDirective = TripleSlashReferencePathDirective | TripleSlashReferenceTypesDirective | TripleSlashReferenceNoDefaultLibDirective | TripleSlashAmdModuleDirective;
 
-export type TypeReference = TopLevelDeclaration | NamedTypeReference | ArrayTypeReference | PrimitiveType;
+export type TypeReference = TopLevelDeclaration | NamedTypeReference | ArrayTypeReference | TupleTypeReference | PrimitiveType;
 
 export type ObjectTypeReference = ClassDeclaration | InterfaceDeclaration;
 export type ObjectTypeMember = PropertyDeclaration | MethodDeclaration | IndexSignature | CallSignature;
@@ -585,6 +590,12 @@ export const type = {
             type
         }
     },
+    tuple(...types: Type[]): TupleTypeReference {
+        return {
+            kind: "tuple",
+            types
+        }
+    },
     stringLiteral(string: string): PrimitiveType {
         return {
             kind: "string-literal",
@@ -897,6 +908,12 @@ export function emit(rootDecl: TopLevelDeclaration, { rootFlags = ContextFlags.N
                     writeReference(e.type);
                     if (needsParens(e.type)) print(')');
                     print('[]');
+                    break;
+
+                case "tuple":
+                    print('[');
+                    writeDelimited(e.types, ', ', writeReference);
+                    print(']');
                     break;
 
                 case "object":
